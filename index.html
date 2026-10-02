@@ -54,12 +54,12 @@
       <div>
         <span class="inline-block bg-amber-400/20 text-amber-300 text-xs uppercase tracking-wider font-bold px-3 py-1 rounded-full mb-3">Temporada Exclusiva</span>
         <h2 class="text-2xl sm:text-3xl font-extrabold mb-2">Moda, Calzado & Fragancias</h2>
-        <p class="text-slate-300 text-sm max-w-md">Toca cualquier artículo para ver sus detalles en grande y coordina tu pedido directo por WhatsApp.</p>
+        <p class="text-slate-300 text-sm max-w-md">Toca cualquier artículo para ver sus detalles en grande y coordina la entrega directa por WhatsApp.</p>
       </div>
       <div class="text-center bg-white/10 backdrop-blur-sm p-4 rounded-xl border border-white/10 shrink-0">
         <p class="text-xs text-slate-200 mb-1">Medios de pago disponibles</p>
         <div class="flex gap-2 justify-center font-bold text-sm text-amber-300">
-          <span>Yape</span> • <span>Plin</span> • <span>Contraentrega</span>
+          <span>Contraentrega</span> • <span>Yape</span> • <span>Plin</span>
         </div>
       </div>
     </div>
@@ -122,16 +122,40 @@
 
       <div id="cart-items" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
 
+      <!-- FORMULARIO DE ENVÍO Y PAGO -->
       <div class="p-5 border-t border-slate-100 bg-slate-50 space-y-3">
-        <div class="space-y-2">
-          <label class="block text-xs font-semibold text-slate-700">Tus Datos para el Envío:</label>
-          <input type="text" id="cust-name" placeholder="Nombre completo" class="w-full text-xs p-2.5 rounded-lg border border-slate-300 bg-white" />
-          <input type="text" id="cust-address" placeholder="Dirección exacta / Ciudad" class="w-full text-xs p-2.5 rounded-lg border border-slate-300 bg-white" />
-          <select id="cust-payment" class="w-full text-xs p-2.5 rounded-lg border border-slate-300 bg-white">
-            <option value="Yape / Plin">Pago mediante Yape / Plin</option>
-            <option value="Contraentrega">Pago contraentrega en efectivo</option>
-            <option value="Transferencia Bancaria">Transferencia bancaria</option>
-          </select>
+        <div class="space-y-2.5">
+          <label class="block text-xs font-semibold text-slate-700">Tus Datos para la Entrega:</label>
+          
+          <input type="text" id="cust-name" placeholder="Nombre y Apellido completo" class="w-full text-xs p-2.5 rounded-lg border border-slate-300 bg-white focus:outline-slate-900" />
+          
+          <!-- SELECCIÓN DE MÉTODO DE PAGO / ENTREGA -->
+          <div class="flex flex-col">
+            <label class="text-[11px] font-bold text-slate-500 mb-1">Método de Entrega y Pago:</label>
+            <select id="cust-payment" onchange="toggleDeliveryOptions()" class="w-full text-xs p-2.5 rounded-lg border border-slate-300 bg-white font-medium focus:outline-slate-900">
+              <option value="Contraentrega">Contraentrega (Puntos céntricos Chiclayo)</option>
+              <option value="Yape">Yape (Envío a domicilio / agencia)</option>
+              <option value="Plin">Plin (Envío a domicilio / agencia)</option>
+              <option value="Transferencia">Transferencia Bancaria (BCP / BBVA / Interbank)</option>
+            </select>
+          </div>
+
+          <!-- OPCIÓN A: PUNTOS FIJOS DE CONTRAENTREGA -->
+          <div id="box-contraentrega" class="flex flex-col">
+            <label class="text-[11px] font-bold text-amber-800 mb-1">Punto de Entrega Acordado:</label>
+            <select id="cust-delivery-point" class="w-full text-xs p-2.5 rounded-lg border border-amber-300 bg-amber-50/60 font-semibold text-slate-800 focus:outline-amber-600">
+              <option value="Real Plaza Chiclayo">Real Plaza Chiclayo</option>
+              <option value="Parque Principal de Chiclayo">Parque Principal de Chiclayo</option>
+              <option value="Plaza Elías Aguirre">Plaza Elías Aguirre</option>
+              <option value="Esquina de Banco de la Nación">Esquina de Banco de la Nación (Chiclayo Centro)</option>
+            </select>
+          </div>
+
+          <!-- OPCIÓN B: DIRECCIÓN EXACTA (SE MUESTRA CUANDO ES YAPE/PLIN/TRANSFERENCIA) -->
+          <div id="box-address" class="hidden flex flex-col">
+            <label class="text-[11px] font-bold text-slate-600 mb-1">Dirección de Entrega o Ciudad:</label>
+            <input type="text" id="cust-address" placeholder="Ej: Urb. Los Parques / Distrito / Referencia" class="w-full text-xs p-2.5 rounded-lg border border-slate-300 bg-white focus:outline-slate-900" />
+          </div>
         </div>
 
         <div class="pt-2 border-t border-slate-200 flex justify-between items-baseline">
@@ -194,9 +218,7 @@
 
   <!-- ================= LÓGICA COMPLETA ================= -->
   <script>
-    // Conexión directa a Firebase Realtime Database
     const FIREBASE_DB_URL = "https://d-ana-tienda-default-rtdb.firebaseio.com/";
-
     const CLOUD_NAME = "jykepmvw";
     const UPLOAD_PRESET = "ml_default";
     const ADMIN_PASSWORD = "15062018";
@@ -210,6 +232,21 @@
       fetchProductsFromCloud();
       setupCartDrawer();
     });
+
+    // Control dinámico de campos según método seleccionado
+    function toggleDeliveryOptions() {
+      const paymentMethod = document.getElementById("cust-payment").value;
+      const boxContraentrega = document.getElementById("box-contraentrega");
+      const boxAddress = document.getElementById("box-address");
+
+      if (paymentMethod === "Contraentrega") {
+        boxContraentrega.classList.remove("hidden");
+        boxAddress.classList.add("hidden");
+      } else {
+        boxContraentrega.classList.add("hidden");
+        boxAddress.classList.remove("hidden");
+      }
+    }
 
     async function fetchProductsFromCloud() {
       try {
@@ -243,7 +280,7 @@
         : products.filter(p => p.category === currentCategory);
 
       if (filtered.length === 0) {
-        grid.innerHTML = `<div class="col-span-full py-12 text-center text-slate-400">No hay productos en esta sección. Abre el Panel para agregar el primero.</div>`;
+        grid.innerHTML = `<div class="col-span-full py-12 text-center text-slate-400">No hay productos en esta sección. Abre el Panel para agregar productos.</div>`;
         return;
       }
 
@@ -378,7 +415,7 @@
         alert("¡Publicado! Ya es visible en cualquier celular y computadora.");
 
       } catch (err) {
-        alert("Hubo un error al guardar. Revisa tu conexión o las reglas de Firebase.");
+        alert("Hubo un error al guardar. Revisa tu conexión.");
         btnText.textContent = "Subir y Publicar en Todos los Dispositivos";
       }
     }
@@ -427,6 +464,7 @@
       }
     }
 
+    // ================= CARRITO Y WHATSAPP CON LÓGICA PERSONALIZADA =================
     function setupCartDrawer() {
       const openBtn = document.getElementById("btn-open-cart");
       const closeBtn = document.getElementById("btn-close-cart");
@@ -506,15 +544,35 @@
 
     function sendWhatsAppOrder() {
       if (cart.length === 0) return alert("Tu carrito está vacío.");
+      
       const name = document.getElementById("cust-name").value.trim();
-      const address = document.getElementById("cust-address").value.trim();
       const payment = document.getElementById("cust-payment").value;
+      const point = document.getElementById("cust-delivery-point").value;
+      const address = document.getElementById("cust-address").value.trim();
 
-      if (!name || !address) return alert("Completa tu nombre y dirección.");
+      if (!name) return alert("Por favor, ingresa tu nombre completo.");
+
+      // Validación según método
+      if (payment !== "Contraentrega" && !address) {
+        return alert("Por favor, ingresa tu dirección de entrega o ciudad.");
+      }
 
       let total = 0;
-      let text = `🛍️ *NUEVO PEDIDO - D'Ana Boutique*\n----------------------------------\n`;
-      text += `👤 *Cliente:* ${name}\n📍 *Dirección:* ${address}\n💳 *Pago:* ${payment}\n----------------------------------\n`;
+      let text = `🛍️ *NUEVO PEDIDO - D'Ana Boutique*\n`;
+      text += `----------------------------------\n`;
+      text += `👤 *Cliente:* ${name}\n`;
+      text += `💳 *Método de Pago:* ${payment}\n`;
+
+      if (payment === "Contraentrega") {
+        text += `📍 *Punto de Entrega Acordado:* ${point}\n`;
+        text += `🤝 *Modalidad:* Pago en persona al recibir el pedido\n`;
+      } else {
+        text += `📍 *Dirección de Envío:* ${address}\n`;
+        text += `📲 *Estado:* Por favor, confírmame el pedido para enviarte los datos de pago por aquí.\n`;
+      }
+
+      text += `----------------------------------\n`;
+      text += `📦 *DETALLE DE COMPRA:*\n`;
 
       cart.forEach((item, index) => {
         const sub = item.price * item.qty;
@@ -522,7 +580,15 @@
         text += `${index + 1}. ${item.name} x${item.qty} = S/ ${sub.toFixed(2)}\n`;
       });
 
-      text += `----------------------------------\n💰 *TOTAL: S/ ${total.toFixed(2)}*\n\nHola, quiero coordinar mi pedido.`;
+      text += `----------------------------------\n`;
+      text += `💰 *TOTAL A PAGAR: S/ ${total.toFixed(2)}*\n\n`;
+
+      if (payment === "Contraentrega") {
+        text += `Hola D'Ana Boutique, deseo coordinar la hora de entrega en el punto seleccionado.`;
+      } else {
+        text += `Hola D'Ana Boutique, quedo a la espera de sus datos de pago para confirmar mi orden.`;
+      }
+
       window.open(`https://api.whatsapp.com/send?phone=${WHATSAPP_PHONE}&text=${encodeURI(text)}`, "_blank");
     }
   </script>

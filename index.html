@@ -13,11 +13,11 @@
   <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 h-24 flex items-center justify-between">
       
-<!-- LOGO (Doble clic abre panel de administrador) -->
+      <!-- LOGO -->
       <div id="logo-trigger" class="flex items-center gap-3 cursor-pointer select-none" title="Doble clic para administrar">
         <img src="logo.png" alt="logo de la tienda" class="h-20 w-auto object-contain" />
         <div>
-          <h1 id="shop-name-display" class="font-extrabold text-lg leading-tight tracking-tight text-slate-900">D'Ana Boutique </h1>
+          <h1 id="shop-name-display" class="font-extrabold text-xl leading-tight tracking-tight text-slate-900">D'Ana Boutique</h1>
           <p class="text-xs text-slate-500">Moda, Calzado & Fragancias</p>
         </div>
       </div>
@@ -54,7 +54,7 @@
       <div>
         <span class="inline-block bg-amber-400/20 text-amber-300 text-xs uppercase tracking-wider font-bold px-3 py-1 rounded-full mb-3">Temporada Exclusiva</span>
         <h2 class="text-2xl sm:text-3xl font-extrabold mb-2">Moda, Calzado & Fragancias</h2>
-        <p class="text-slate-300 text-sm max-w-md">Arma tu carrito y coordina la entrega directa por WhatsApp con nosotros.</p>
+        <p class="text-slate-300 text-sm max-w-md">Toca cualquier artículo para ver sus detalles en grande y coordina tu pedido directo por WhatsApp.</p>
       </div>
       <div class="text-center bg-white/10 backdrop-blur-sm p-4 rounded-xl border border-white/10 shrink-0">
         <p class="text-xs text-slate-200 mb-1">Medios de pago disponibles</p>
@@ -69,6 +69,42 @@
   <main class="max-w-6xl mx-auto px-4 sm:px-6 pb-16 flex-1 w-full">
     <div id="product-grid" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6"></div>
   </main>
+
+  <!-- ================= MODAL VISTA DETALLADA DEL PRODUCTO ================= -->
+  <div id="product-modal" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl border border-slate-100 overflow-hidden flex flex-col max-h-[92vh] animate-in fade-in zoom-in-95 duration-200">
+      
+      <!-- Cabecera con botón de cerrar -->
+      <div class="relative bg-slate-100 h-72 sm:h-80 w-full overflow-hidden flex items-center justify-center">
+        <img id="modal-img" src="" alt="Detalle" class="w-full h-full object-contain bg-white" />
+        <span id="modal-category" class="absolute top-4 left-4 bg-slate-900/80 backdrop-blur-xs text-white text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow"></span>
+        <button onclick="closeProductModal()" class="absolute top-4 right-4 bg-white/90 hover:bg-white text-slate-800 hover:text-black w-9 h-9 rounded-full flex items-center justify-center shadow-lg transition">
+          <i class="ph ph-x text-xl font-bold"></i>
+        </button>
+      </div>
+
+      <!-- Contenido y detalles -->
+      <div class="p-6 flex-1 overflow-y-auto space-y-4">
+        <div>
+          <h3 id="modal-name" class="text-xl sm:text-2xl font-black text-slate-900 leading-tight"></h3>
+          <p id="modal-price" class="text-2xl font-extrabold text-amber-600 mt-2"></p>
+        </div>
+
+        <div class="border-t border-slate-100 pt-3">
+          <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Descripción y Detalles:</h4>
+          <p id="modal-desc" class="text-slate-600 text-sm leading-relaxed whitespace-pre-line"></p>
+        </div>
+      </div>
+
+      <!-- Barra de acción / Añadir -->
+      <div class="p-4 border-t border-slate-100 bg-slate-50 flex items-center gap-3">
+        <button id="modal-add-btn" class="flex-1 bg-slate-900 hover:bg-amber-500 hover:text-slate-900 text-white font-bold py-3.5 px-4 rounded-2xl flex items-center justify-center gap-2 shadow-md transition">
+          <i class="ph ph-shopping-bag text-xl"></i>
+          <span>Agregar a Mi Pedido</span>
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- ================= PANEL CARRITO ================= -->
   <div id="cart-drawer" class="fixed inset-0 z-50 pointer-events-none transition-opacity duration-300 opacity-0">
@@ -111,7 +147,7 @@
     </div>
   </div>
 
-  <!-- ================= MODAL ADMIN (CON SUBIDA DIRECTA DE FOTOS) ================= -->
+  <!-- ================= MODAL ADMIN ================= -->
   <div id="admin-modal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
     <div class="bg-white w-full max-w-xl rounded-2xl shadow-2xl border border-slate-200 max-h-[90vh] flex flex-col">
       <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-900 text-white rounded-t-2xl">
@@ -124,7 +160,6 @@
       </div>
 
       <div class="p-5 overflow-y-auto space-y-5 flex-1 text-sm">
-        <!-- Formulario para subir producto -->
         <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
           <h4 class="font-bold text-slate-800 text-xs uppercase tracking-wider">Agregar Producto con Foto Directa</h4>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -136,7 +171,6 @@
               <option value="ropa">Ropa & Accesorios</option>
             </select>
             
-            <!-- BOTÓN DIRECTO DE ARCHIVO/CÁMARA -->
             <div class="flex flex-col">
               <label class="text-[11px] font-bold text-slate-600 mb-1">Seleccionar Foto desde Celular/PC:</label>
               <input type="file" id="adm-file" accept="image/*" class="text-xs file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:bg-slate-900 file:text-white" />
@@ -150,7 +184,6 @@
           </button>
         </div>
 
-        <!-- Lista de productos cargados -->
         <div>
           <h4 class="font-bold text-slate-800 text-xs uppercase tracking-wider mb-2">Productos en Catálogo</h4>
           <div id="admin-prod-list" class="space-y-2 max-h-48 overflow-y-auto"></div>
@@ -161,11 +194,10 @@
 
   <!-- ================= LÓGICA COMPLETA ================= -->
   <script>
-    // CONFIGURACIÓN DE TU CUENTA GRATIS DE CLOUDINARY (SIN LINKS)
-    const CLOUD_NAME = "jykepmvw"; // Tu nombre de Cloudinary
-    const UPLOAD_PRESET = "ml_default"; // Tu preset unsigned
-    const ADMIN_PASSWORD = "15072018"; // Clave para que nadie más entre
-    const WHATSAPP_PHONE = "51927792939"; // Tu número de WhatsApp
+    const CLOUD_NAME = "jykepmvw";
+    const UPLOAD_PRESET = "ml_default";
+    const ADMIN_PASSWORD = "15062018";
+    const WHATSAPP_PHONE = "51916052207";
 
     let products = JSON.parse(localStorage.getItem("boutique_prods_live")) || [
       {
@@ -174,7 +206,7 @@
         category: "zapatos",
         price: 139.00,
         image: "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=600",
-        description: "Tallas 35 a 39. Taco 9cm acolchado."
+        description: "Zapatos elegantes taco aguja 9cm con plantilla confort acolchada. Tallas 35 a 39 disponibles."
       },
       {
         id: 2,
@@ -182,7 +214,7 @@
         category: "fragancias",
         price: 175.00,
         image: "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=600",
-        description: "Notas florales dulces y fondo amaderado."
+        description: "Fragancia de alta fijación con notas florales dulces, toques de rosa silvestre y fondo amaderado."
       }
     ];
 
@@ -209,22 +241,28 @@
 
       filtered.forEach(p => {
         const card = document.createElement("div");
-        card.className = "bg-white rounded-2xl overflow-hidden border border-slate-200/80 shadow-xs hover:shadow-md transition flex flex-col";
+        card.className = "bg-white rounded-2xl overflow-hidden border border-slate-200/80 shadow-xs hover:shadow-md transition flex flex-col group";
         card.innerHTML = `
-          <div class="h-44 sm:h-52 bg-slate-100 overflow-hidden relative group">
+          <!-- Al hacer clic en la foto o tarjeta, se abre la vista detallada -->
+          <div onclick="openProductModal(${p.id})" class="h-44 sm:h-52 bg-slate-100 overflow-hidden relative cursor-pointer">
             <img src="${p.image}" alt="${p.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='https://placehold.co/400x400?text=Sin+Imagen'"/>
             <span class="absolute top-2 left-2 bg-white/90 backdrop-blur-xs text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full text-slate-700 shadow-xs">
               ${p.category}
             </span>
+            <div class="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+              <span class="bg-white/90 text-slate-900 text-xs font-bold px-3 py-1 rounded-full shadow">Ver detalle</span>
+            </div>
           </div>
+          
           <div class="p-3.5 flex-1 flex flex-col justify-between">
-            <div>
-              <h4 class="font-bold text-slate-900 text-sm leading-snug line-clamp-1">${p.name}</h4>
+            <div onclick="openProductModal(${p.id})" class="cursor-pointer">
+              <h4 class="font-bold text-slate-900 text-sm leading-snug line-clamp-1 hover:text-amber-600 transition">${p.name}</h4>
               <p class="text-xs text-slate-500 mt-1 line-clamp-2">${p.description}</p>
             </div>
+            
             <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between">
               <span class="text-base font-extrabold text-slate-900">S/ ${Number(p.price).toFixed(2)}</span>
-              <button onclick="addToCart(${p.id})" class="bg-slate-900 hover:bg-amber-500 hover:text-slate-900 text-white p-2 rounded-xl transition flex items-center justify-center">
+              <button onclick="addToCart(${p.id})" class="bg-slate-900 hover:bg-amber-500 hover:text-slate-900 text-white p-2 rounded-xl transition flex items-center justify-center" title="Agregar al carrito">
                 <i class="ph ph-plus font-bold text-sm"></i>
               </button>
             </div>
@@ -233,6 +271,37 @@
         grid.appendChild(card);
       });
     }
+
+    // ================= FUNCIONES DEL MODAL DE DETALLE =================
+    function openProductModal(prodId) {
+      const prod = products.find(p => p.id === prodId);
+      if (!prod) return;
+
+      document.getElementById("modal-img").src = prod.image;
+      document.getElementById("modal-category").textContent = prod.category;
+      document.getElementById("modal-name").textContent = prod.name;
+      document.getElementById("modal-price").textContent = `S/ ${Number(prod.price).toFixed(2)}`;
+      document.getElementById("modal-desc").textContent = prod.description || "Sin descripción adicional.";
+
+      const addBtn = document.getElementById("modal-add-btn");
+      addBtn.onclick = () => {
+        addToCart(prod.id);
+        closeProductModal();
+      };
+
+      document.getElementById("product-modal").classList.remove("hidden");
+    }
+
+    function closeProductModal() {
+      document.getElementById("product-modal").classList.add("hidden");
+    }
+
+    // Cerrar el modal al hacer clic afuera del contenedor blanco
+    document.getElementById("product-modal").addEventListener("click", (e) => {
+      if (e.target.id === "product-modal") {
+        closeProductModal();
+      }
+    });
 
     function filterCategory(cat, element) {
       currentCategory = cat;
@@ -268,7 +337,6 @@
       btnText.textContent = "Subiendo foto a la tienda...";
 
       try {
-        // Enviar la imagen directamente a Cloudinary sin links
         const formData = new FormData();
         formData.append("file", file);
         formData.append("upload_preset", UPLOAD_PRESET);
@@ -281,10 +349,9 @@
         const data = await response.json();
         
         if (!data.secure_url) {
-          throw new Error("No se pudo subir la foto. Revisa tus credenciales.");
+          throw new Error("No se pudo subir la foto.");
         }
 
-        // Producto guardado con la foto directa
         const newProduct = {
           id: Date.now(),
           name,
@@ -297,7 +364,6 @@
         products.unshift(newProduct);
         localStorage.setItem("boutique_prods_live", JSON.stringify(products));
 
-        // Limpiar formulario y refrescar
         document.getElementById("adm-name").value = "";
         document.getElementById("adm-price").value = "";
         document.getElementById("adm-desc").value = "";
@@ -306,10 +372,10 @@
 
         renderProducts();
         renderAdminList();
-        alert("¡Producto publicado con éxito con su foto!");
+        alert("¡Producto publicado con éxito!");
 
       } catch (err) {
-        alert("Error al subir la imagen. Verifica haber colocado tu Cloud Name y Preset correctamente.");
+        alert("Error al subir la imagen. Verifica tu conexión e inténtalo de nuevo.");
         btnText.textContent = "Subir y Publicar Producto";
       }
     }
